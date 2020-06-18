@@ -44,7 +44,7 @@ module.exports = {
         name: 'sitemap',
       })
       .get({ key: 'settings' });
-  
+
     if (!config) {
       config = await createDefaultConfig('');
     }
@@ -68,7 +68,7 @@ module.exports = {
           uidFieldName = i;
         }
       })
-      
+
       if (uidFieldName) {
         contentTypes[contentType.info.name] = {
           uidField: uidFieldName,
@@ -87,13 +87,18 @@ module.exports = {
 
   getUrls: (contentType, pages, config) => {
     let urls = [];
-      
-    pages.map((e) => {
-      Object.entries(e).map(([i, e]) => {
-        if (i === config.contentTypes[contentType].uidField) {
-          urls.push(e);
-        }
-      })
+    pages.forEach(function (element){
+      if(element.Path != '/'){
+        urls.push({
+          url: element.Path + '' + element.Slug,
+          lastmod: element.updatedAt
+        })
+      }else{
+        urls.push({
+          url: element.Slug,
+          lastmod: element.updatedAt
+        })
+      }
     })
 
     return urls;
@@ -109,14 +114,13 @@ module.exports = {
 
       urls.map((url) => {
         sitemapEntries.push({
-          url: url,
+          url: url.url,
+          lastmod: url.lastmod,
           changefreq: config.contentTypes[contentType].changefreq,
           priority: config.contentTypes[contentType].priority,
         })
       })
     }));
-
-    console.log(config.contentTypes);
 
     if (config.customEntries) {
       await Promise.all(Object.keys(config.customEntries).map(async (customEntry) => {
